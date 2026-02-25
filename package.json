@@ -1,0 +1,37 @@
+{
+  "name": "backlog-cli",
+  "version": "0.1.0",
+  "description": "CLI tool for backlog.jp (Nulab)",
+  "type": "module",
+  "bin": {
+    "backlog": "./bin/backlog.ts"
+  },
+  "scripts": {
+    "dev": "tsx bin/backlog.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [
+    "backlog",
+    "cli",
+    "nulab"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.30.2",
+  "dependencies": {
+    "backlog-js": "^0.16.0",
+    "commander": "^14.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "@vitest/coverage-v8": "^4.0.18",
+    "prettier": "^3.8.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
