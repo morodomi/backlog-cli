@@ -11,6 +11,7 @@ interface IssueCreateCommandOptions {
   assignee?: string;
   category?: string[];
   milestone?: string[];
+  parent?: string;
   json?: boolean;
 }
 
@@ -26,6 +27,7 @@ export function registerIssueCreateCommand(program: Command, issueService: Issue
     .option("--assignee <assignee>", "担当者名")
     .option("--category <category...>", "カテゴリ名")
     .option("--milestone <milestone...>", "マイルストーン名")
+    .option("--parent <issueKey>", "親課題キー")
     .option("--json", "JSON形式で出力する")
     .action(async (options: IssueCreateCommandOptions) => {
       try {
@@ -47,6 +49,9 @@ export function registerIssueCreateCommand(program: Command, issueService: Issue
         }
         if (options.milestone) {
           createOptions.milestoneNames = options.milestone;
+        }
+        if (options.parent) {
+          createOptions.parentIssueKey = options.parent;
         }
 
         const issue = await issueService.create(createOptions);

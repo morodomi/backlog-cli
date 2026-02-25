@@ -9,6 +9,7 @@ export interface IssueCreateOptions {
   assigneeName?: string;
   categoryNames?: string[];
   milestoneNames?: string[];
+  parentIssueKey?: string;
 }
 
 export interface IssueUpdateOptions {
@@ -163,6 +164,10 @@ export class IssueService {
       if (assigneeIds.length > 0) {
         params.assigneeId = assigneeIds[0];
       }
+    }
+    if (options.parentIssueKey) {
+      const parentIssue = await this.client.getIssue(options.parentIssueKey);
+      params.parentIssueId = parentIssue.id;
     }
     if (options.categoryNames) {
       params.categoryId = await this.resolveCategoryIds(options.projectKey, options.categoryNames);
