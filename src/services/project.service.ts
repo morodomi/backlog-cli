@@ -14,4 +14,24 @@ export class ProjectService {
     }
     return this.client.getProjects(params);
   }
+
+  async getStatuses(projectKey: string): Promise<Entity.Project.ProjectStatus[]> {
+    return this.client.getProjectStatuses(projectKey);
+  }
+
+  async getIssueTypes(projectKey: string): Promise<Entity.Issue.IssueType[]> {
+    return this.client.getIssueTypes(projectKey);
+  }
+
+  async getCategories(projectKey: string): Promise<Entity.Project.Category[]> {
+    return this.client.getCategories(projectKey);
+  }
+
+  async getVersions(projectKey: string): Promise<Entity.Project.Version[]> {
+    return this.client.getVersions(projectKey);
+  }
+
+  async getMembers(projectKey: string): Promise<Entity.User.User[]> {
+    return this.client.getProjectUsers(projectKey);
+  }
 }
