@@ -1,6 +1,34 @@
 # Backlog CLI
 
-backlog.jp (Nulab提供) をコマンドラインから操作するCLIツール。
+> **Claude Code だけで構築した CLI ツール** のサンプルプロジェクトです。
+> 人間は一切コードを書いていません。Claude Code との対話のみで開発されました。
+
+backlog.jp (Nulab提供) をコマンドラインから操作する CLI ツール。
+
+## Claude Code サンプルプロジェクトとして
+
+このリポジトリは、Claude Code の実践的な活用例を示すために公開しています。
+
+- **人間はコードを一切書いていない** — すべてのコード・テスト・設定ファイルは Claude Code が生成
+- **CLAUDE.md と `.claude/rules/` で振る舞いを制御** — プロジェクトレベルの指示書で Claude Code の開発方針を定義
+- **TDD サイクルで開発** — `INIT → PLAN → RED → GREEN → REFACTOR → REVIEW → COMMIT` の各フェーズを経て機能を実装
+
+### 開発の経緯
+
+開発の過程は `docs/cycles/` に Cycle doc として残っています。各 Cycle doc には、機能ごとの設計判断・テスト一覧・実装の流れが記録されています。
+
+一部のセッション履歴は残っていません。初期のセッションや試行錯誤の過程には、Cycle doc として記録されていないものもあります。
+
+### CLAUDE.md について
+
+Claude Code は `CLAUDE.md` ファイルをプロジェクトの指示書として読み込みます。このプロジェクトでは 2 層構造で運用しました:
+
+| レベル       | ファイル                         | 内容                                                                   |
+| ------------ | -------------------------------- | ---------------------------------------------------------------------- |
+| プロジェクト | `CLAUDE.md` (リポジトリルート)   | 技術スタック・アーキテクチャ・品質基準など、このプロジェクト固有の指示 |
+| グローバル   | `~/.claude/CLAUDE.md` (ローカル) | TDD 例外なし・知的誠実性ルールなど、全プロジェクト共通の開発哲学       |
+
+グローバル設定はリポジトリに含まれませんが、その内容はプロジェクト `CLAUDE.md` の「開発哲学」セクションに転記してあります。
 
 ## インストール
 
@@ -38,7 +66,8 @@ pnpm dev issue view ISSUE-1 --json
 # 作成
 pnpm dev issue create -p PROJECT_KEY --summary "件名" --type タスク --priority 中
 pnpm dev issue create -p PROJECT_KEY --summary "件名" --type タスク --priority 中 \
-  --description "説明" --assignee 山田太郎 --category フロントエンド --milestone v1.0
+  --description "説明" --assignee 山田太郎 --category フロントエンド --milestone v1.0 \
+  --parent ISSUE-1
 
 # 更新
 pnpm dev issue update ISSUE-1 --status 処理中

@@ -4,6 +4,52 @@ backlog.jp (Nulab提供) の閲覧・操作をCLI経由で行うツール。
 
 日本語で返答する。質問があれば、解決するまで繰り返し質問する。
 
+## 開発哲学
+
+### TDD（例外なし）
+
+すべての機能開発・バグ修正は、例外なく TDD サイクルを通す。
+
+```
+INIT → PLAN → RED → GREEN → REFACTOR → REVIEW → COMMIT
+```
+
+各フェーズは対応する tdd-skills スキルで実行。Cycle doc は `docs/cycles/` に記録。
+
+- エラー発見 → 再現テスト作成 → 修正 → テスト成功確認（いきなり修正しない）
+- 「急いでいる」と言われても TDD を維持
+
+### AI アシスタントへの指示
+
+**禁止事項:**
+
+- テストなしの実装
+- 不確実な情報での推測（確認を求めること）
+- 不要なファイル作成
+
+**必須事項:**
+
+- エラー報告 → TDD サイクルで対応
+- 機能追加 → TDD サイクルで対応
+
+### 知的誠実性
+
+- 相手の主張に同意する前に、まずその主張の最も弱い点を特定する
+- 「妥当」「同意」は結論であり、出発点ではない
+- 迎合は同意ではない。早すぎる収束は思考の放棄である
+
+### テスト設計
+
+**Given/When/Then 形式** を推奨。
+
+### ルールファイル
+
+Git・セキュリティに関するルールは `.claude/rules/` に配置:
+
+- [`.claude/rules/git-safety.md`](.claude/rules/git-safety.md) — `--no-verify` 禁止、ブランチ保護など
+- [`.claude/rules/git-conventions.md`](.claude/rules/git-conventions.md) — コミットメッセージ形式 (`feat|fix|docs|refactor|test|chore`)
+- [`.claude/rules/security.md`](.claude/rules/security.md) — 秘密鍵管理、コミット前チェック
+
 ## 技術スタック
 
 | 項目                   | 選定               |
@@ -28,14 +74,6 @@ npx tsc --noEmit         # 型チェック
 npx prettier --check .   # フォーマットチェック
 npx prettier --write .   # フォーマット適用
 ```
-
-## TDD Workflow
-
-```
-INIT → PLAN → RED → GREEN → REFACTOR → REVIEW → COMMIT
-```
-
-各フェーズは対応する dev-crew スキルで実行。Cycle doc は `docs/cycles/` に記録。
 
 ## アーキテクチャ
 
