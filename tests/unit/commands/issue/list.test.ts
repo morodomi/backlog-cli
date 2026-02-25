@@ -13,6 +13,11 @@ describe("issue list command", () => {
     mockIssueService = {
       list: vi.fn().mockResolvedValue([createIssueFixture({ issueKey: "PRJ-1" })]),
       resolveStatusIds: vi.fn().mockResolvedValue([1]),
+      resolveIssueTypeIds: vi.fn().mockResolvedValue([10]),
+      resolveCategoryIds: vi.fn().mockResolvedValue([20]),
+      resolveMilestoneIds: vi.fn().mockResolvedValue([30]),
+      resolveAssigneeIds: vi.fn().mockResolvedValue([40]),
+      resolvePriorityIds: vi.fn().mockResolvedValue([2]),
       getStatuses: vi.fn().mockResolvedValue([]),
     };
     registerIssueListCommand(program, mockIssueService);
@@ -56,6 +61,85 @@ describe("issue list command", () => {
 
   it("-p が未指定の場合エラーになる", async () => {
     await expect(program.parseAsync(["node", "test", "list"])).rejects.toThrow();
+  });
+
+  it("--type で種別フィルタを指定できる", async () => {
+    await program.parseAsync(["node", "test", "list", "-p", "PRJ", "--type", "タスク"]);
+
+    expect(mockIssueService.resolveIssueTypeIds).toHaveBeenCalledWith("PRJ", ["タスク"]);
+    expect(mockIssueService.list).toHaveBeenCalledWith(
+      expect.objectContaining({ issueTypeId: [10] }),
+    );
+  });
+
+  it("--category でカテゴリフィルタを指定できる", async () => {
+    await program.parseAsync(["node", "test", "list", "-p", "PRJ", "--category", "フロントエンド"]);
+
+    expect(mockIssueService.resolveCategoryIds).toHaveBeenCalledWith("PRJ", ["フロントエンド"]);
+    expect(mockIssueService.list).toHaveBeenCalledWith(
+      expect.objectContaining({ categoryId: [20] }),
+    );
+  });
+
+  it("--milestone でマイルストーンフィルタを指定できる", async () => {
+    await program.parseAsync(["node", "test", "list", "-p", "PRJ", "--milestone", "v1.0"]);
+
+    expect(mockIssueService.resolveMilestoneIds).toHaveBeenCalledWith("PRJ", ["v1.0"]);
+    expect(mockIssueService.list).toHaveBeenCalledWith(
+      expect.objectContaining({ milestoneId: [30] }),
+    );
+  });
+
+  it("--assignee で担当者フィルタを指定できる", async () => {
+    await program.parseAsync(["node", "test", "list", "-p", "PRJ", "--assignee", "山田太郎"]);
+
+    expect(mockIssueService.resolveAssigneeIds).toHaveBeenCalledWith("PRJ", ["山田太郎"]);
+    expect(mockIssueService.list).toHaveBeenCalledWith(
+      expect.objectContaining({ assigneeId: [40] }),
+    );
+  });
+
+  it("--priority で優先度フィルタを指定できる", async () => {
+    await program.parseAsync(["node", "test", "list", "-p", "PRJ", "--priority", "高"]);
+
+    expect(mockIssueService.resolvePriorityIds).toHaveBeenCalledWith(["高"]);
+    expect(mockIssueService.list).toHaveBeenCalledWith(
+      expect.objectContaining({ priorityId: [2] }),
+    );
+  });
+
+  it("--keyword でキーワード検索できる", async () => {
+    await program.parseAsync(["node", "test", "list", "-p", "PRJ", "--keyword", "検索ワード"]);
+
+    expect(mockIssueService.list).toHaveBeenCalledWith(
+      expect.objectContaining({ keyword: "検索ワード" }),
+    );
+  });
+
+  it("--sort でソートキーを指定できる", async () => {
+    await program.parseAsync(["node", "test", "list", "-p", "PRJ", "--sort", "created"]);
+
+    expect(mockIssueService.list).toHaveBeenCalledWith(
+      expect.objectContaining({ sort: "created" }),
+    );
+  });
+
+  it("--order でソート順を指定できる", async () => {
+    await program.parseAsync([
+      "node",
+      "test",
+      "list",
+      "-p",
+      "PRJ",
+      "--sort",
+      "created",
+      "--order",
+      "asc",
+    ]);
+
+    expect(mockIssueService.list).toHaveBeenCalledWith(
+      expect.objectContaining({ sort: "created", order: "asc" }),
+    );
   });
 
   it("API呼び出し失敗時にエラーメッセージを表示して exitCode=1", async () => {

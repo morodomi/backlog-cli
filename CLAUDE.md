@@ -60,10 +60,24 @@ docs/cycles/              # Cycle docs
 ## CLIコマンド
 
 ```bash
+# 認証
 backlog auth login --host xxx.backlog.jp --api-key KEY
 backlog auth status
+
+# プロジェクト
 backlog project list [--archived] [--json]
-backlog issue list -p PROJECT_KEY [--status ...] [--limit N] [--json]
+backlog project statuses <projectKey> [--json]
+backlog project types <projectKey> [--json]
+backlog project categories <projectKey> [--json]
+backlog project milestones <projectKey> [--json]
+backlog project members <projectKey> [--json]
+
+# 課題
+backlog issue list -p PROJECT_KEY [--status ...] [--type ...] [--category ...]
+                                  [--milestone ...] [--assignee ...]
+                                  [--priority ...] [--keyword <text>]
+                                  [--sort <key>] [--order asc|desc]
+                                  [--limit N] [--json]
 backlog issue view ISSUE_KEY [--json]
 ```
 
