@@ -28,11 +28,24 @@ pnpm dev project list --json
 ### 課題操作
 
 ```bash
+# 一覧・詳細
 pnpm dev issue list -p PROJECT_KEY
 pnpm dev issue list -p PROJECT_KEY --status 未対応 処理中
 pnpm dev issue list -p PROJECT_KEY --limit 10 --json
 pnpm dev issue view ISSUE-1
 pnpm dev issue view ISSUE-1 --json
+
+# 作成
+pnpm dev issue create -p PROJECT_KEY --summary "件名" --type タスク --priority 中
+pnpm dev issue create -p PROJECT_KEY --summary "件名" --type タスク --priority 中 \
+  --description "説明" --assignee 山田太郎 --category フロントエンド --milestone v1.0
+
+# 更新
+pnpm dev issue update ISSUE-1 --status 処理中
+pnpm dev issue update ISSUE-1 --status 処理中 --assignee 山田太郎 --comment "対応開始"
+
+# コメント
+pnpm dev issue comment ISSUE-1 --content "コメント本文"
 ```
 
 ## 開発

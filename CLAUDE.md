@@ -79,6 +79,14 @@ backlog issue list -p PROJECT_KEY [--status ...] [--type ...] [--category ...]
                                   [--sort <key>] [--order asc|desc]
                                   [--limit N] [--json]
 backlog issue view ISSUE_KEY [--json]
+backlog issue create -p PROJECT_KEY --summary "件名" --type タスク --priority 中
+                     [--description "説明"] [--assignee 名前]
+                     [--category ...] [--milestone ...] [--json]
+backlog issue update ISSUE_KEY [--status ステータス名] [--assignee 名前]
+                               [--priority 優先度名] [--type 種別名]
+                               [--category ...] [--milestone ...]
+                               [--comment "更新コメント"] [--json]
+backlog issue comment ISSUE_KEY --content "コメント本文" [--json]
 ```
 
 ## Quality Standards
