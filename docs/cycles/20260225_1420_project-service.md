@@ -11,6 +11,7 @@ updated: 2026-02-25 14:21
 ## Scope Definition
 
 ### In Scope
+
 - [x] ProjectService クラス (list with archived filter)
 - [x] `backlog project list` コマンド
 - [x] --archived / --json オプション
@@ -18,10 +19,12 @@ updated: 2026-02-25 14:21
 - [x] ユニットテスト
 
 ### Out of Scope
+
 - プロジェクト作成/更新/削除
 - プロジェクト詳細表示
 
 ### Files to Change
+
 - `src/services/project.service.ts` (new)
 - `src/commands/project/list.ts` (new)
 - `src/commands/project/index.ts` (new)
@@ -34,16 +37,19 @@ updated: 2026-02-25 14:21
 ## Environment
 
 ### Scope
+
 - Layer: Both
 - Plugin: ts
 - Risk: 10 (PASS)
 
 ### Dependencies
+
 - backlog-js: Entity.Project.Project 型
 
 ## Test List
 
 ### DONE
+
 - [x] TC-01: プロジェクト一覧を取得できる
 - [x] TC-02: archived フィルタが動作する
 - [x] TC-03: 空一覧時に「見つかりません」メッセージ
@@ -56,9 +62,11 @@ updated: 2026-02-25 14:21
 ## Implementation Notes
 
 ### Goal
+
 Backlog のプロジェクト一覧を取得してテーブル形式で表示する。
 
 ### Design Approach
+
 - ProjectService: backlog-js の getProjects() をラップ
 - formatProjectTable: Key / Name / Archived カラム
 - padEnd ヘルパーで固定幅表示
@@ -66,7 +74,9 @@ Backlog のプロジェクト一覧を取得してテーブル形式で表示す
 ## Progress Log
 
 ### 2026-02-25 14:20 - RED
+
 - 8テスト作成
 
 ### 2026-02-25 14:21 - DONE
+
 - 実装・テスト・レビュー完了

@@ -11,9 +11,7 @@ describe("issue list command", () => {
     program = new Command();
     program.exitOverride();
     mockIssueService = {
-      list: vi.fn().mockResolvedValue([
-        createIssueFixture({ issueKey: "PRJ-1" }),
-      ]),
+      list: vi.fn().mockResolvedValue([createIssueFixture({ issueKey: "PRJ-1" })]),
       resolveStatusIds: vi.fn().mockResolvedValue([1]),
       getStatuses: vi.fn().mockResolvedValue([]),
     };
@@ -38,9 +36,7 @@ describe("issue list command", () => {
   it("--limit で取得件数を指定できる", async () => {
     await program.parseAsync(["node", "test", "list", "-p", "PRJ", "--limit", "5"]);
 
-    expect(mockIssueService.list).toHaveBeenCalledWith(
-      expect.objectContaining({ limit: 5 }),
-    );
+    expect(mockIssueService.list).toHaveBeenCalledWith(expect.objectContaining({ limit: 5 }));
   });
 
   it("--json でJSON出力する", async () => {
@@ -51,9 +47,25 @@ describe("issue list command", () => {
     expect(() => JSON.parse(jsonOutput)).not.toThrow();
   });
 
+  it("--status でステータスフィルタを指定できる", async () => {
+    await program.parseAsync(["node", "test", "list", "-p", "PRJ", "--status", "未対応"]);
+
+    expect(mockIssueService.resolveStatusIds).toHaveBeenCalledWith("PRJ", ["未対応"]);
+    expect(mockIssueService.list).toHaveBeenCalledWith(expect.objectContaining({ statusId: [1] }));
+  });
+
   it("-p が未指定の場合エラーになる", async () => {
-    await expect(
-      program.parseAsync(["node", "test", "list"]),
-    ).rejects.toThrow();
+    await expect(program.parseAsync(["node", "test", "list"])).rejects.toThrow();
+  });
+
+  it("API呼び出し失敗時にエラーメッセージを表示して exitCode=1", async () => {
+    mockIssueService.list.mockRejectedValue(new Error("API connection failed"));
+    const originalExitCode = process.exitCode;
+
+    await program.parseAsync(["node", "test", "list", "-p", "PRJ"]);
+
+    expect(console.error).toHaveBeenCalledWith("API connection failed");
+    expect(process.exitCode).toBe(1);
+    process.exitCode = originalExitCode;
   });
 });

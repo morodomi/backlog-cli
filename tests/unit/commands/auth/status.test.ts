@@ -30,9 +30,7 @@ describe("auth status command", () => {
 
     await program.parseAsync(["node", "test", "status"]);
 
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining("test.backlog.jp"),
-    );
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining("test.backlog.jp"));
   });
 
   it("認証設定が存在する場合、APIキーをマスクして表示する", async () => {
@@ -46,8 +44,6 @@ describe("auth status command", () => {
   it("認証設定が存在しない場合、未設定メッセージを表示する", async () => {
     await program.parseAsync(["node", "test", "status"]);
 
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining("認証が設定されていません"),
-    );
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining("認証が設定されていません"));
   });
 });

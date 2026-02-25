@@ -11,9 +11,9 @@ describe("issue view command", () => {
     program = new Command();
     program.exitOverride();
     mockIssueService = {
-      view: vi.fn().mockResolvedValue(
-        createIssueFixture({ issueKey: "PRJ-123", summary: "テスト課題" }),
-      ),
+      view: vi
+        .fn()
+        .mockResolvedValue(createIssueFixture({ issueKey: "PRJ-123", summary: "テスト課題" })),
     };
     registerIssueViewCommand(program, mockIssueService);
     vi.spyOn(console, "log").mockImplementation(() => {});
@@ -36,5 +36,17 @@ describe("issue view command", () => {
     const calls = (console.log as any).mock.calls;
     const jsonOutput = calls[0][0];
     expect(() => JSON.parse(jsonOutput)).not.toThrow();
+  });
+
+  it("API呼び出し失敗時にエラーメッセージを表示して exitCode=1", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mockIssueService.view.mockRejectedValue(new Error("Issue not found"));
+    const originalExitCode = process.exitCode;
+
+    await program.parseAsync(["node", "test", "view", "PRJ-999"]);
+
+    expect(console.error).toHaveBeenCalledWith("Issue not found");
+    expect(process.exitCode).toBe(1);
+    process.exitCode = originalExitCode;
   });
 });

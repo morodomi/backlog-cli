@@ -29,8 +29,12 @@ export class ConfigService {
     if (!this.exists()) {
       return null;
     }
-    const raw = fs.readFileSync(this.configPath, "utf-8");
-    return JSON.parse(raw) as BacklogConfig;
+    try {
+      const raw = fs.readFileSync(this.configPath, "utf-8");
+      return JSON.parse(raw) as BacklogConfig;
+    } catch {
+      return null;
+    }
   }
 
   delete(): void {

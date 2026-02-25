@@ -1,11 +1,8 @@
 import type { Command } from "commander";
-import type { IssueService } from "../../services/issue.service.js";
+import type { IssueService, IssueListOptions } from "../../services/issue.service.js";
 import { formatIssueTable } from "../../formatters/table.formatter.js";
 
-export function registerIssueListCommand(
-  program: Command,
-  issueService: IssueService,
-): void {
+export function registerIssueListCommand(program: Command, issueService: IssueService): void {
   program
     .command("list")
     .description("課題一覧を表示する")
@@ -14,34 +11,31 @@ export function registerIssueListCommand(
     .option("--limit <number>", "取得件数", parseInt)
     .option("--json", "JSON形式で出力する")
     .action(
-      async (options: {
-        project: string;
-        status?: string[];
-        limit?: number;
-        json?: boolean;
-      }) => {
-        const listOptions: Record<string, unknown> = {
-          projectKey: options.project,
-        };
+      async (options: { project: string; status?: string[]; limit?: number; json?: boolean }) => {
+        try {
+          const listOptions: IssueListOptions = {
+            projectKey: options.project,
+          };
 
-        if (options.status) {
-          const statusIds = await issueService.resolveStatusIds(
-            options.project,
-            options.status,
-          );
-          listOptions["statusId"] = statusIds;
-        }
+          if (options.status) {
+            const statusIds = await issueService.resolveStatusIds(options.project, options.status);
+            listOptions.statusId = statusIds;
+          }
 
-        if (options.limit) {
-          listOptions["limit"] = options.limit;
-        }
+          if (options.limit) {
+            listOptions.limit = options.limit;
+          }
 
-        const issues = await issueService.list(listOptions as any);
+          const issues = await issueService.list(listOptions);
 
-        if (options.json) {
-          console.log(JSON.stringify(issues, null, 2));
-        } else {
-          console.log(formatIssueTable(issues));
+          if (options.json) {
+            console.log(JSON.stringify(issues, null, 2));
+          } else {
+            console.log(formatIssueTable(issues));
+          }
+        } catch (e) {
+          console.error(e instanceof Error ? e.message : String(e));
+          process.exitCode = 1;
         }
       },
     );

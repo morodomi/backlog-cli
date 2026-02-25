@@ -36,10 +36,7 @@ export class IssueService {
     return this.client.getProjectStatuses(projectId);
   }
 
-  async resolveStatusIds(
-    projectKey: string,
-    statusNames: string[],
-  ): Promise<number[]> {
+  async resolveStatusIds(projectKey: string, statusNames: string[]): Promise<number[]> {
     const statuses = await this.getStatuses(projectKey);
     return statusNames
       .map((name) => statuses.find((s) => s.name === name))

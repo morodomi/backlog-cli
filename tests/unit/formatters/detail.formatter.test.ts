@@ -27,6 +27,36 @@ describe("formatIssueDetail", () => {
     });
 
     const result = formatIssueDetail(issue);
-    expect(result).toContain("-");
+    expect(result).toContain("Assignee:  -");
+  });
+
+  it("dueDate がない場合に Due Date 行が出力されない", () => {
+    const issue = createIssueFixture({
+      issueKey: "PRJ-789",
+      dueDate: undefined,
+    });
+
+    const result = formatIssueDetail(issue);
+    expect(result).not.toContain("Due Date:");
+  });
+
+  it("assignee が null の場合 '-' を表示する", () => {
+    const issue = createIssueFixture({
+      issueKey: "PRJ-101",
+      assignee: null as unknown as undefined,
+    });
+
+    const result = formatIssueDetail(issue);
+    expect(result).toContain("Assignee:  -");
+  });
+
+  it("description が空文字の場合 '(なし)' を表示する", () => {
+    const issue = createIssueFixture({
+      issueKey: "PRJ-102",
+      description: "",
+    });
+
+    const result = formatIssueDetail(issue);
+    expect(result).toContain("(なし)");
   });
 });

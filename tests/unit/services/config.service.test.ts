@@ -61,6 +61,14 @@ describe("ConfigService", () => {
     it("設定ファイルが存在しない場合 null を返す", () => {
       expect(service.load()).toBeNull();
     });
+
+    it("不正なJSONファイルの場合 null を返す", () => {
+      const filePath = path.join(tmpDir, "config.json");
+      fs.mkdirSync(tmpDir, { recursive: true });
+      fs.writeFileSync(filePath, "{ invalid json }", "utf-8");
+
+      expect(service.load()).toBeNull();
+    });
   });
 
   describe("delete", () => {
