@@ -108,6 +108,32 @@ describe("issue create command", () => {
     await expect(program.parseAsync(["node", "test", "create", "-p", "PRJ"])).rejects.toThrow();
   });
 
+  it("--parent で親課題キーを指定できる", async () => {
+    await program.parseAsync([
+      "node",
+      "test",
+      "create",
+      "-p",
+      "PRJ",
+      "--summary",
+      "子課題",
+      "--type",
+      "タスク",
+      "--priority",
+      "中",
+      "--parent",
+      "PRJ-5",
+    ]);
+
+    expect(mockIssueService.create).toHaveBeenCalledWith({
+      projectKey: "PRJ",
+      summary: "子課題",
+      issueTypeName: "タスク",
+      priorityName: "中",
+      parentIssueKey: "PRJ-5",
+    });
+  });
+
   it("API呼び出し失敗時にエラーメッセージを表示して exitCode=1", async () => {
     mockIssueService.create.mockRejectedValue(new Error("作成に失敗しました"));
     const originalExitCode = process.exitCode;

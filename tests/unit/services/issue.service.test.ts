@@ -310,6 +310,37 @@ describe("IssueService", () => {
       ).rejects.toThrow("種別");
     });
 
+    it("親課題キーを指定して課題を作成する", async () => {
+      const parentIssue = createIssueFixture({ issueKey: "PRJ-5", summary: "親課題" });
+      const createdIssue = createIssueFixture({ issueKey: "PRJ-11", summary: "子課題" });
+      const mockClient = {
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
+        getIssueTypes: vi.fn().mockResolvedValue([{ id: 10, name: "タスク" }]),
+        getPriorities: vi.fn().mockResolvedValue([{ id: 3, name: "中" }]),
+        getIssue: vi.fn().mockResolvedValue(parentIssue),
+        postIssue: vi.fn().mockResolvedValue(createdIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      const result = await service.create({
+        projectKey: "PRJ",
+        summary: "子課題",
+        issueTypeName: "タスク",
+        priorityName: "中",
+        parentIssueKey: "PRJ-5",
+      });
+
+      expect(result).toEqual(createdIssue);
+      expect(mockClient.getIssue).toHaveBeenCalledWith("PRJ-5");
+      expect(mockClient.postIssue).toHaveBeenCalledWith({
+        projectId: 100,
+        summary: "子課題",
+        issueTypeId: 10,
+        priorityId: 3,
+        parentIssueId: parentIssue.id,
+      });
+    });
+
     it("優先度名が見つからない場合エラーを投げる", async () => {
       const mockClient = {
         getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
