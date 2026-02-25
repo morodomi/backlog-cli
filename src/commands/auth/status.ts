@@ -8,10 +8,7 @@ function maskApiKey(apiKey: string): string {
   return apiKey.slice(0, 4) + "****";
 }
 
-export function registerStatusCommand(
-  program: Command,
-  configService: ConfigService,
-): void {
+export function registerStatusCommand(program: Command, configService: ConfigService): void {
   program
     .command("status")
     .description("現在の認証状態を表示する")

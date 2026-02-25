@@ -1,10 +1,7 @@
 import type { Command } from "commander";
 import type { ConfigService } from "../../services/config.service.js";
 
-export function registerLoginCommand(
-  program: Command,
-  configService: ConfigService,
-): void {
+export function registerLoginCommand(program: Command, configService: ConfigService): void {
   program
     .command("login")
     .description("Backlog APIの認証情報を設定する")

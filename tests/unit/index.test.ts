@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as os from "node:os";
@@ -38,5 +38,37 @@ describe("createProgram", () => {
 
   it("認証未設定でもプログラムが作成できる", () => {
     expect(() => createProgram()).not.toThrow();
+  });
+
+  it("認証未設定時に project スタブがエラーメッセージを出力する", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const program = createProgram();
+    program.exitOverride();
+    const originalExitCode = process.exitCode;
+
+    await program.parseAsync(["node", "test", "project"]);
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      "認証が設定されていません。`backlog auth login` を実行してください。",
+    );
+    expect(process.exitCode).toBe(1);
+    process.exitCode = originalExitCode;
+    errorSpy.mockRestore();
+  });
+
+  it("認証未設定時に issue スタブがエラーメッセージを出力する", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const program = createProgram();
+    program.exitOverride();
+    const originalExitCode = process.exitCode;
+
+    await program.parseAsync(["node", "test", "issue"]);
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      "認証が設定されていません。`backlog auth login` を実行してください。",
+    );
+    expect(process.exitCode).toBe(1);
+    process.exitCode = originalExitCode;
+    errorSpy.mockRestore();
   });
 });

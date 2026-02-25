@@ -6,16 +6,16 @@ backlog.jp (Nulab提供) の閲覧・操作をCLI経由で行うツール。
 
 ## 技術スタック
 
-| 項目 | 選定 |
-|------|------|
-| 言語 | TypeScript (ESM) |
-| CLIフレームワーク | Commander.js v14 |
-| APIクライアント | backlog-js v0.16.0 |
-| パッケージマネージャー | pnpm |
-| テスト | Vitest |
-| フォーマッタ | Prettier |
-| 静的解析 | tsc --noEmit |
-| 実行 | tsx |
+| 項目                   | 選定               |
+| ---------------------- | ------------------ |
+| 言語                   | TypeScript (ESM)   |
+| CLIフレームワーク      | Commander.js v14   |
+| APIクライアント        | backlog-js v0.16.0 |
+| パッケージマネージャー | pnpm               |
+| テスト                 | Vitest             |
+| フォーマッタ           | Prettier           |
+| 静的解析               | tsc --noEmit       |
+| 実行                   | tsx                |
 
 ## Quick Commands
 
@@ -69,8 +69,8 @@ backlog issue view ISSUE_KEY [--json]
 
 ## Quality Standards
 
-| 項目 | 基準 |
-|------|------|
-| カバレッジ | 90%+ (最低80%) |
-| 型チェック | tsc --noEmit エラー0件 |
-| フォーマット | Prettier準拠 |
+| 項目         | 基準                   |
+| ------------ | ---------------------- |
+| カバレッジ   | 90%+ (最低80%)         |
+| 型チェック   | tsc --noEmit エラー0件 |
+| フォーマット | Prettier準拠           |

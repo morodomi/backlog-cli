@@ -43,4 +43,16 @@ describe("project list command", () => {
     const jsonOutput = calls[0][0];
     expect(() => JSON.parse(jsonOutput)).not.toThrow();
   });
+
+  it("API呼び出し失敗時にエラーメッセージを表示して exitCode=1", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    mockProjectService.list.mockRejectedValue(new Error("Network error"));
+    const originalExitCode = process.exitCode;
+
+    await program.parseAsync(["node", "test", "list"]);
+
+    expect(console.error).toHaveBeenCalledWith("Network error");
+    expect(process.exitCode).toBe(1);
+    process.exitCode = originalExitCode;
+  });
 });

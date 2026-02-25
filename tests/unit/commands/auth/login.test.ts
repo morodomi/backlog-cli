@@ -51,9 +51,7 @@ describe("auth login command", () => {
       "my-api-key",
     ]);
 
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining("認証情報を保存しました"),
-    );
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining("認証情報を保存しました"));
   });
 
   it("--host が未指定の場合エラーになる", async () => {

@@ -30,9 +30,7 @@ describe("IssueService", () => {
       const service = new IssueService(mockClient as any);
 
       await service.list({ projectKey: "PRJ", limit: 5 });
-      expect(mockClient.getIssues).toHaveBeenCalledWith(
-        expect.objectContaining({ count: 5 }),
-      );
+      expect(mockClient.getIssues).toHaveBeenCalledWith(expect.objectContaining({ count: 5 }));
     });
 
     it("statusIdでフィルタできる", async () => {
