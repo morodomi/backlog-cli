@@ -1,4 +1,25 @@
-import type { Backlog, Entity } from "backlog-js";
+import type { Backlog, Entity, Option } from "backlog-js";
+
+export interface IssueCreateOptions {
+  projectKey: string;
+  summary: string;
+  issueTypeName: string;
+  priorityName: string;
+  description?: string;
+  assigneeName?: string;
+  categoryNames?: string[];
+  milestoneNames?: string[];
+}
+
+export interface IssueUpdateOptions {
+  statusName?: string;
+  assigneeName?: string;
+  priorityName?: string;
+  issueTypeName?: string;
+  categoryNames?: string[];
+  milestoneNames?: string[];
+  comment?: string;
+}
 
 export interface IssueListOptions {
   projectKey: string;
@@ -110,6 +131,95 @@ export class IssueService {
       .map((name) => priorities.find((p: Entity.Issue.Priority) => p.name === name))
       .filter((p): p is Entity.Issue.Priority => p !== undefined)
       .map((p) => p.id);
+  }
+
+  async create(options: IssueCreateOptions): Promise<Entity.Issue.Issue> {
+    const projectId = await this.resolveProjectId(options.projectKey);
+
+    const issueTypeIds = await this.resolveIssueTypeIds(options.projectKey, [
+      options.issueTypeName,
+    ]);
+    if (issueTypeIds.length === 0) {
+      throw new Error(`種別 "${options.issueTypeName}" が見つかりません`);
+    }
+
+    const priorityIds = await this.resolvePriorityIds([options.priorityName]);
+    if (priorityIds.length === 0) {
+      throw new Error(`優先度 "${options.priorityName}" が見つかりません`);
+    }
+
+    const params: Option.Issue.PostIssueParams = {
+      projectId,
+      summary: options.summary,
+      issueTypeId: issueTypeIds[0],
+      priorityId: priorityIds[0],
+    };
+
+    if (options.description) {
+      params.description = options.description;
+    }
+    if (options.assigneeName) {
+      const assigneeIds = await this.resolveAssigneeIds(options.projectKey, [options.assigneeName]);
+      if (assigneeIds.length > 0) {
+        params.assigneeId = assigneeIds[0];
+      }
+    }
+    if (options.categoryNames) {
+      params.categoryId = await this.resolveCategoryIds(options.projectKey, options.categoryNames);
+    }
+    if (options.milestoneNames) {
+      params.milestoneId = await this.resolveMilestoneIds(
+        options.projectKey,
+        options.milestoneNames,
+      );
+    }
+
+    return this.client.postIssue(params);
+  }
+
+  async update(issueKey: string, options: IssueUpdateOptions): Promise<Entity.Issue.Issue> {
+    const projectKey = issueKey.replace(/-\d+$/, "");
+    const params: Option.Issue.PatchIssueParams = {};
+
+    if (options.statusName) {
+      const statusIds = await this.resolveStatusIds(projectKey, [options.statusName]);
+      if (statusIds.length > 0) {
+        params.statusId = statusIds[0];
+      }
+    }
+    if (options.assigneeName) {
+      const assigneeIds = await this.resolveAssigneeIds(projectKey, [options.assigneeName]);
+      if (assigneeIds.length > 0) {
+        params.assigneeId = assigneeIds[0];
+      }
+    }
+    if (options.priorityName) {
+      const priorityIds = await this.resolvePriorityIds([options.priorityName]);
+      if (priorityIds.length > 0) {
+        params.priorityId = priorityIds[0];
+      }
+    }
+    if (options.issueTypeName) {
+      const issueTypeIds = await this.resolveIssueTypeIds(projectKey, [options.issueTypeName]);
+      if (issueTypeIds.length > 0) {
+        params.issueTypeId = issueTypeIds[0];
+      }
+    }
+    if (options.categoryNames) {
+      params.categoryId = await this.resolveCategoryIds(projectKey, options.categoryNames);
+    }
+    if (options.milestoneNames) {
+      params.milestoneId = await this.resolveMilestoneIds(projectKey, options.milestoneNames);
+    }
+    if (options.comment) {
+      params.comment = options.comment;
+    }
+
+    return this.client.patchIssue(issueKey, params);
+  }
+
+  async comment(issueKey: string, content: string): Promise<Entity.Issue.Comment> {
+    return this.client.postIssueComments(issueKey, { content });
   }
 
   private async resolveProjectId(projectKey: string): Promise<number> {

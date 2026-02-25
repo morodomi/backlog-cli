@@ -229,6 +229,222 @@ describe("IssueService", () => {
     });
   });
 
+  describe("create", () => {
+    it("課題を作成する", async () => {
+      const createdIssue = createIssueFixture({ issueKey: "PRJ-10", summary: "新しい課題" });
+      const mockClient = {
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
+        getIssueTypes: vi.fn().mockResolvedValue([{ id: 10, name: "タスク" }]),
+        getPriorities: vi.fn().mockResolvedValue([{ id: 3, name: "中" }]),
+        postIssue: vi.fn().mockResolvedValue(createdIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      const result = await service.create({
+        projectKey: "PRJ",
+        summary: "新しい課題",
+        issueTypeName: "タスク",
+        priorityName: "中",
+      });
+
+      expect(result).toEqual(createdIssue);
+      expect(mockClient.postIssue).toHaveBeenCalledWith({
+        projectId: 100,
+        summary: "新しい課題",
+        issueTypeId: 10,
+        priorityId: 3,
+      });
+    });
+
+    it("オプションフィールドを指定して課題を作成する", async () => {
+      const createdIssue = createIssueFixture({ issueKey: "PRJ-11" });
+      const mockClient = {
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
+        getIssueTypes: vi.fn().mockResolvedValue([{ id: 10, name: "タスク" }]),
+        getPriorities: vi.fn().mockResolvedValue([{ id: 3, name: "中" }]),
+        getProjectUsers: vi.fn().mockResolvedValue([{ id: 40, name: "山田太郎" }]),
+        getCategories: vi.fn().mockResolvedValue([{ id: 20, name: "フロントエンド" }]),
+        getVersions: vi.fn().mockResolvedValue([{ id: 30, name: "v1.0" }]),
+        postIssue: vi.fn().mockResolvedValue(createdIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      await service.create({
+        projectKey: "PRJ",
+        summary: "詳細な課題",
+        issueTypeName: "タスク",
+        priorityName: "中",
+        description: "説明文",
+        assigneeName: "山田太郎",
+        categoryNames: ["フロントエンド"],
+        milestoneNames: ["v1.0"],
+      });
+
+      expect(mockClient.postIssue).toHaveBeenCalledWith({
+        projectId: 100,
+        summary: "詳細な課題",
+        issueTypeId: 10,
+        priorityId: 3,
+        description: "説明文",
+        assigneeId: 40,
+        categoryId: [20],
+        milestoneId: [30],
+      });
+    });
+
+    it("種別名が見つからない場合エラーを投げる", async () => {
+      const mockClient = {
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
+        getIssueTypes: vi.fn().mockResolvedValue([{ id: 10, name: "タスク" }]),
+        getPriorities: vi.fn().mockResolvedValue([{ id: 3, name: "中" }]),
+      };
+      const service = new IssueService(mockClient as any);
+
+      await expect(
+        service.create({
+          projectKey: "PRJ",
+          summary: "テスト",
+          issueTypeName: "存在しない種別",
+          priorityName: "中",
+        }),
+      ).rejects.toThrow("種別");
+    });
+
+    it("優先度名が見つからない場合エラーを投げる", async () => {
+      const mockClient = {
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
+        getIssueTypes: vi.fn().mockResolvedValue([{ id: 10, name: "タスク" }]),
+        getPriorities: vi.fn().mockResolvedValue([{ id: 3, name: "中" }]),
+      };
+      const service = new IssueService(mockClient as any);
+
+      await expect(
+        service.create({
+          projectKey: "PRJ",
+          summary: "テスト",
+          issueTypeName: "タスク",
+          priorityName: "存在しない優先度",
+        }),
+      ).rejects.toThrow("優先度");
+    });
+  });
+
+  describe("update", () => {
+    it("課題を更新する", async () => {
+      const updatedIssue = createIssueFixture({ issueKey: "PRJ-1", summary: "更新済み" });
+      const mockClient = {
+        getProjectStatuses: vi.fn().mockResolvedValue([
+          { id: 1, projectId: 100, name: "未対応", color: "#ea2c00", displayOrder: 0 },
+          { id: 2, projectId: 100, name: "処理中", color: "#e87758", displayOrder: 1 },
+        ]),
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
+        patchIssue: vi.fn().mockResolvedValue(updatedIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      const result = await service.update("PRJ-1", { statusName: "処理中" });
+
+      expect(result).toEqual(updatedIssue);
+      expect(mockClient.patchIssue).toHaveBeenCalledWith("PRJ-1", { statusId: 2 });
+    });
+
+    it("複数フィールドを同時に更新する", async () => {
+      const updatedIssue = createIssueFixture({ issueKey: "PRJ-1" });
+      const mockClient = {
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
+        getProjectStatuses: vi
+          .fn()
+          .mockResolvedValue([
+            { id: 2, projectId: 100, name: "処理中", color: "#e87758", displayOrder: 1 },
+          ]),
+        getProjectUsers: vi.fn().mockResolvedValue([{ id: 40, name: "山田太郎" }]),
+        getPriorities: vi.fn().mockResolvedValue([{ id: 2, name: "高" }]),
+        getIssueTypes: vi.fn().mockResolvedValue([{ id: 11, name: "バグ" }]),
+        getCategories: vi.fn().mockResolvedValue([{ id: 20, name: "フロントエンド" }]),
+        getVersions: vi.fn().mockResolvedValue([{ id: 30, name: "v1.0" }]),
+        patchIssue: vi.fn().mockResolvedValue(updatedIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      await service.update("PRJ-1", {
+        statusName: "処理中",
+        assigneeName: "山田太郎",
+        priorityName: "高",
+        issueTypeName: "バグ",
+        categoryNames: ["フロントエンド"],
+        milestoneNames: ["v1.0"],
+        comment: "更新コメント",
+      });
+
+      expect(mockClient.patchIssue).toHaveBeenCalledWith("PRJ-1", {
+        statusId: 2,
+        assigneeId: 40,
+        priorityId: 2,
+        issueTypeId: 11,
+        categoryId: [20],
+        milestoneId: [30],
+        comment: "更新コメント",
+      });
+    });
+
+    it("オプションが空の場合は空パラメータで更新する", async () => {
+      const updatedIssue = createIssueFixture({ issueKey: "PRJ-1" });
+      const mockClient = {
+        patchIssue: vi.fn().mockResolvedValue(updatedIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      const result = await service.update("PRJ-1", {});
+
+      expect(result).toEqual(updatedIssue);
+      expect(mockClient.patchIssue).toHaveBeenCalledWith("PRJ-1", {});
+    });
+
+    it("issueKeyからprojectKeyを正しく抽出する", async () => {
+      const updatedIssue = createIssueFixture({ issueKey: "MY_PROJECT-123" });
+      const mockClient = {
+        getProjectStatuses: vi
+          .fn()
+          .mockResolvedValue([
+            { id: 1, projectId: 100, name: "未対応", color: "#ea2c00", displayOrder: 0 },
+          ]),
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "MY_PROJECT" }]),
+        patchIssue: vi.fn().mockResolvedValue(updatedIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      await service.update("MY_PROJECT-123", { statusName: "未対応" });
+
+      expect(mockClient.getProjectStatuses).toHaveBeenCalledWith(100);
+    });
+  });
+
+  describe("comment", () => {
+    it("課題にコメントを追加する", async () => {
+      const createdComment = {
+        id: 1,
+        content: "テストコメント",
+        changeLog: [],
+        createdUser: { id: 1, name: "テストユーザー" },
+        created: "2024-01-01T00:00:00Z",
+        updated: "2024-01-01T00:00:00Z",
+        stars: [],
+        notifications: [],
+      };
+      const mockClient = {
+        postIssueComments: vi.fn().mockResolvedValue(createdComment),
+      };
+      const service = new IssueService(mockClient as any);
+
+      const result = await service.comment("PRJ-1", "テストコメント");
+
+      expect(result).toEqual(createdComment);
+      expect(mockClient.postIssueComments).toHaveBeenCalledWith("PRJ-1", {
+        content: "テストコメント",
+      });
+    });
+  });
+
   describe("list with extended options", () => {
     it("issueTypeIdでフィルタできる", async () => {
       const mockClient = {

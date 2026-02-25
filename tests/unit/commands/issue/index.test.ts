@@ -2,10 +2,13 @@ import { describe, it, expect, vi } from "vitest";
 import { createIssueCommand } from "../../../../src/commands/issue/index.js";
 
 describe("createIssueCommand", () => {
-  it("issue コマンドを作成して list, view サブコマンドが登録されている", () => {
+  it("issue コマンドを作成して全サブコマンドが登録されている", () => {
     const mockIssueService = {
       list: vi.fn(),
       view: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      comment: vi.fn(),
       getStatuses: vi.fn(),
       resolveStatusIds: vi.fn(),
     } as any;
@@ -16,5 +19,8 @@ describe("createIssueCommand", () => {
     const subcommands = command.commands.map((c) => c.name());
     expect(subcommands).toContain("list");
     expect(subcommands).toContain("view");
+    expect(subcommands).toContain("create");
+    expect(subcommands).toContain("update");
+    expect(subcommands).toContain("comment");
   });
 });

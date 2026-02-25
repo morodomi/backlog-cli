@@ -1,5 +1,17 @@
 import type { Entity } from "backlog-js";
 
+export function formatIssueCreated(issue: Entity.Issue.Issue): string {
+  return `作成しました: [${issue.issueKey}] ${issue.summary}`;
+}
+
+export function formatIssueUpdated(issue: Entity.Issue.Issue): string {
+  return `更新しました: [${issue.issueKey}] ${issue.summary}`;
+}
+
+export function formatCommentCreated(issueKey: string, comment: Entity.Issue.Comment): string {
+  return `コメントを追加しました: [${issueKey}]\n${comment.content}`;
+}
+
 export function formatIssueDetail(issue: Entity.Issue.Issue): string {
   const lines = [
     `[${issue.issueKey}] ${issue.summary}`,
