@@ -12,6 +12,7 @@ interface IssueUpdateCommandOptions {
   comment?: string;
   startDate?: string;
   dueDate?: string;
+  parent?: string;
   json?: boolean;
 }
 
@@ -28,6 +29,7 @@ export function registerIssueUpdateCommand(program: Command, issueService: Issue
     .option("--comment <comment>", "更新コメント")
     .option("--start-date <date>", "開始日 (YYYY-MM-DD)")
     .option("--due-date <date>", "期限日 (YYYY-MM-DD)")
+    .option("--parent <issueKey>", "親課題キー (none で解除)")
     .option("--json", "JSON形式で出力する")
     .action(async (issueKey: string, options: IssueUpdateCommandOptions) => {
       try {
@@ -75,6 +77,9 @@ export function registerIssueUpdateCommand(program: Command, issueService: Issue
         }
         if (options.dueDate) {
           updateOptions.dueDate = options.dueDate;
+        }
+        if (options.parent) {
+          updateOptions.parentIssueKey = options.parent;
         }
 
         const issue = await issueService.update(issueKey, updateOptions);

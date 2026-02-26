@@ -12,7 +12,10 @@ export function formatCommentCreated(issueKey: string, comment: Entity.Issue.Com
   return `コメントを追加しました: [${issueKey}]\n${comment.content}`;
 }
 
-export function formatIssueDetail(issue: Entity.Issue.Issue): string {
+export function formatIssueDetail(
+  issue: Entity.Issue.Issue,
+  childIssues?: Entity.Issue.Issue[],
+): string {
   const lines = [
     `[${issue.issueKey}] ${issue.summary}`,
     "",
@@ -20,15 +23,26 @@ export function formatIssueDetail(issue: Entity.Issue.Issue): string {
     `Priority:  ${issue.priority.name}`,
     `Assignee:  ${issue.assignee?.name ?? "-"}`,
     `Type:      ${issue.issueType.name}`,
-    `Created:   ${issue.created}`,
-    `Updated:   ${issue.updated}`,
   ];
+
+  if (issue.parentIssueId) {
+    lines.push(`Parent:    #${issue.parentIssueId}`);
+  }
+
+  lines.push(`Created:   ${issue.created}`, `Updated:   ${issue.updated}`);
 
   if (issue.dueDate) {
     lines.push(`Due Date:  ${issue.dueDate}`);
   }
 
   lines.push("", "--- Description ---", issue.description || "(なし)");
+
+  if (childIssues && childIssues.length > 0) {
+    lines.push("", "Children:");
+    for (const child of childIssues) {
+      lines.push(`  [${child.issueKey}] ${child.summary}`);
+    }
+  }
 
   return lines.join("\n");
 }

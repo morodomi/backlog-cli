@@ -93,6 +93,6 @@ risk: 15 (PASS)
 | PLAN     | DONE   | 設計・Test List作成 (11テスト)                   |
 | RED      | DONE   | 11テスト作成、全て失敗確認 (142既存テストは通過) |
 | GREEN    | DONE   | 全153テスト通過                                  |
-| REFACTOR | DONE   | バリデーション配置統一、153テスト通過             |
-| REVIEW   | DONE   | PASS (35/100), 日付バリデーション強化済み         |
-| COMMIT   | DONE   | feature ブランチでコミット・push                  |
+| REFACTOR | DONE   | バリデーション配置統一、153テスト通過            |
+| REVIEW   | DONE   | PASS (35/100), 日付バリデーション強化済み        |
+| COMMIT   | DONE   | feature ブランチでコミット・push                 |

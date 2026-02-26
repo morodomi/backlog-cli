@@ -598,6 +598,94 @@ describe("IssueService", () => {
     });
   });
 
+  describe("update - 親課題操作", () => {
+    it("T1: parentIssueKey を指定して更新 → getIssue で ID 解決、patchIssue に parentIssueId が渡される", async () => {
+      // Given: 親課題 PRJ-5 が存在し、ID=5 を持つ
+      const parentIssue = createIssueFixture({ issueKey: "PRJ-5", id: 5 });
+      const updatedIssue = createIssueFixture({ issueKey: "PRJ-1", summary: "更新済み" });
+      const mockClient = {
+        getIssue: vi.fn().mockResolvedValue(parentIssue),
+        patchIssue: vi.fn().mockResolvedValue(updatedIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: parentIssueKey を指定して update を呼ぶ
+      const result = await service.update("PRJ-1", { parentIssueKey: "PRJ-5" } as any);
+
+      // Then: getIssue で PRJ-5 の ID を解決し、patchIssue に parentIssueId が渡される
+      expect(result).toEqual(updatedIssue);
+      expect(mockClient.getIssue).toHaveBeenCalledWith("PRJ-5");
+      expect(mockClient.patchIssue).toHaveBeenCalledWith(
+        "PRJ-1",
+        expect.objectContaining({ parentIssueId: 5 }),
+      );
+    });
+
+    it('T2: parentIssueKey に "none" を指定 → patchIssue に parentIssueId: null が渡される', async () => {
+      // Given: parentIssueKey に "none" を渡す更新オプション
+      const updatedIssue = createIssueFixture({ issueKey: "PRJ-1", summary: "親課題解除済み" });
+      const mockClient = {
+        patchIssue: vi.fn().mockResolvedValue(updatedIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: parentIssueKey: "none" を指定して update を呼ぶ
+      const result = await service.update("PRJ-1", { parentIssueKey: "none" } as any);
+
+      // Then: patchIssue に parentIssueId: null が渡される（親課題解除）
+      expect(result).toEqual(updatedIssue);
+      expect(mockClient.patchIssue).toHaveBeenCalledWith(
+        "PRJ-1",
+        expect.objectContaining({ parentIssueId: null }),
+      );
+    });
+  });
+
+  describe("getChildIssues", () => {
+    it("T3: 課題キーから子課題一覧を取得する", async () => {
+      // Given: PRJ-1 が ID=1 を持ち、子課題が2件存在する
+      const parentIssue = createIssueFixture({ issueKey: "PRJ-1", id: 1 });
+      const childIssues = [
+        createIssueFixture({ issueKey: "PRJ-2", summary: "子課題1" }),
+        createIssueFixture({ issueKey: "PRJ-3", summary: "子課題2" }),
+      ];
+      const mockClient = {
+        getIssue: vi.fn().mockResolvedValue(parentIssue),
+        getIssues: vi.fn().mockResolvedValue(childIssues),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: getChildIssues で PRJ-1 の子課題を取得する
+      const result = await (service as any).getChildIssues("PRJ-1");
+
+      // Then: getIssue で PRJ-1 の ID を解決し、getIssues に parentIssueId が渡されて子課題が返る
+      expect(result).toEqual(childIssues);
+      expect(mockClient.getIssue).toHaveBeenCalledWith("PRJ-1");
+      expect(mockClient.getIssues).toHaveBeenCalledWith(
+        expect.objectContaining({ parentIssueId: [1] }),
+      );
+    });
+
+    it("T4: 子課題がない場合は空配列を返す", async () => {
+      // Given: PRJ-1 が存在するが子課題がない
+      const parentIssue = createIssueFixture({ issueKey: "PRJ-1", id: 1 });
+      const mockClient = {
+        getIssue: vi.fn().mockResolvedValue(parentIssue),
+        getIssues: vi.fn().mockResolvedValue([]),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: getChildIssues を呼ぶ
+      const result = await (service as any).getChildIssues("PRJ-1");
+
+      // Then: 空配列が返る
+      expect(result).toEqual([]);
+      expect(mockClient.getIssues).toHaveBeenCalledWith(
+        expect.objectContaining({ parentIssueId: [1] }),
+      );
+    });
+  });
+
   describe("list with extended options", () => {
     it("issueTypeIdでフィルタできる", async () => {
       const mockClient = {

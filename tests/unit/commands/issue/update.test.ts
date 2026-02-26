@@ -122,4 +122,28 @@ describe("issue update command", () => {
     expect(process.exitCode).toBe(1);
     process.exitCode = originalExitCode;
   });
+
+  // T5: --parent PRJ-5 でサービスに parentIssueKey が渡される
+  it("--parent PRJ-5 でサービスに parentIssueKey が渡される", async () => {
+    // Given: 親課題キー PRJ-5 を指定する
+    // When: --parent オプション付きで update コマンドを実行する
+    await program.parseAsync(["node", "test", "update", "PRJ-1", "--parent", "PRJ-5"]);
+
+    // Then: サービスの update に parentIssueKey が渡される
+    expect(mockIssueService.update).toHaveBeenCalledWith("PRJ-1", {
+      parentIssueKey: "PRJ-5",
+    });
+  });
+
+  // T6: --parent none でサービスに parentIssueKey "none" が渡される
+  it('--parent none でサービスに parentIssueKey "none" が渡される', async () => {
+    // Given: 親課題解除を意味する "none" を指定する
+    // When: --parent none で update コマンドを実行する
+    await program.parseAsync(["node", "test", "update", "PRJ-1", "--parent", "none"]);
+
+    // Then: サービスの update に parentIssueKey "none" が渡される
+    expect(mockIssueService.update).toHaveBeenCalledWith("PRJ-1", {
+      parentIssueKey: "none",
+    });
+  });
 });
