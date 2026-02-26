@@ -156,4 +156,92 @@ describe("issue create command", () => {
     expect(process.exitCode).toBe(1);
     process.exitCode = originalExitCode;
   });
+
+  // T6: --start-date でサービスに startDate が渡される
+  it("--start-date 2026-03-01 でサービスに startDate が渡される", async () => {
+    // Given: 必須オプションに加えて --start-date を指定する
+    // When: コマンドを実行する
+    await program.parseAsync([
+      "node",
+      "test",
+      "create",
+      "-p",
+      "PRJ",
+      "--summary",
+      "開始日付きの課題",
+      "--type",
+      "タスク",
+      "--priority",
+      "中",
+      "--start-date",
+      "2026-03-01",
+    ]);
+
+    // Then: IssueService.create に startDate が渡される
+    expect(mockIssueService.create).toHaveBeenCalledWith({
+      projectKey: "PRJ",
+      summary: "開始日付きの課題",
+      issueTypeName: "タスク",
+      priorityName: "中",
+      startDate: "2026-03-01",
+    });
+  });
+
+  // T7: --due-date でサービスに dueDate が渡される
+  it("--due-date 2026-03-31 でサービスに dueDate が渡される", async () => {
+    // Given: 必須オプションに加えて --due-date を指定する
+    // When: コマンドを実行する
+    await program.parseAsync([
+      "node",
+      "test",
+      "create",
+      "-p",
+      "PRJ",
+      "--summary",
+      "期限日付きの課題",
+      "--type",
+      "タスク",
+      "--priority",
+      "中",
+      "--due-date",
+      "2026-03-31",
+    ]);
+
+    // Then: IssueService.create に dueDate が渡される
+    expect(mockIssueService.create).toHaveBeenCalledWith({
+      projectKey: "PRJ",
+      summary: "期限日付きの課題",
+      issueTypeName: "タスク",
+      priorityName: "中",
+      dueDate: "2026-03-31",
+    });
+  });
+
+  // T8: 不正な日付形式 --start-date abc でエラーメッセージ表示
+  it("不正な日付形式 --start-date abc でエラーメッセージを表示して exitCode=1", async () => {
+    // Given: YYYY-MM-DD 形式でない日付文字列を --start-date に渡す
+    const originalExitCode = process.exitCode;
+
+    // When: コマンドを実行する
+    await program.parseAsync([
+      "node",
+      "test",
+      "create",
+      "-p",
+      "PRJ",
+      "--summary",
+      "テスト",
+      "--type",
+      "タスク",
+      "--priority",
+      "中",
+      "--start-date",
+      "abc",
+    ]);
+
+    // Then: console.error にバリデーションエラーが表示され process.exitCode が 1 になる
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("YYYY-MM-DD"));
+    expect(process.exitCode).toBe(1);
+    process.exitCode = originalExitCode;
+  });
 });

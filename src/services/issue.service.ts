@@ -10,6 +10,8 @@ export interface IssueCreateOptions {
   categoryNames?: string[];
   milestoneNames?: string[];
   parentIssueKey?: string;
+  startDate?: string;
+  dueDate?: string;
 }
 
 export interface IssueUpdateOptions {
@@ -20,6 +22,9 @@ export interface IssueUpdateOptions {
   categoryNames?: string[];
   milestoneNames?: string[];
   comment?: string;
+  startDate?: string;
+  dueDate?: string;
+  parentIssueKey?: string;
 }
 
 export interface IssueListOptions {
@@ -178,6 +183,12 @@ export class IssueService {
         options.milestoneNames,
       );
     }
+    if (options.startDate) {
+      params.startDate = options.startDate;
+    }
+    if (options.dueDate) {
+      params.dueDate = options.dueDate;
+    }
 
     return this.client.postIssue(params);
   }
@@ -219,8 +230,27 @@ export class IssueService {
     if (options.comment) {
       params.comment = options.comment;
     }
+    if (options.startDate) {
+      params.startDate = options.startDate;
+    }
+    if (options.dueDate) {
+      params.dueDate = options.dueDate;
+    }
+    if (options.parentIssueKey !== undefined) {
+      if (options.parentIssueKey === "none") {
+        (params as any).parentIssueId = null;
+      } else {
+        const parentIssue = await this.client.getIssue(options.parentIssueKey);
+        params.parentIssueId = parentIssue.id;
+      }
+    }
 
     return this.client.patchIssue(issueKey, params);
+  }
+
+  async getChildIssues(issueKey: string): Promise<Entity.Issue.Issue[]> {
+    const issue = await this.client.getIssue(issueKey);
+    return this.client.getIssues({ parentIssueId: [issue.id] });
   }
 
   async comment(issueKey: string, content: string): Promise<Entity.Issue.Comment> {

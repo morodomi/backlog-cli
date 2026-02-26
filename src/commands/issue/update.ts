@@ -10,6 +10,9 @@ interface IssueUpdateCommandOptions {
   category?: string[];
   milestone?: string[];
   comment?: string;
+  startDate?: string;
+  dueDate?: string;
+  parent?: string;
   json?: boolean;
 }
 
@@ -24,9 +27,28 @@ export function registerIssueUpdateCommand(program: Command, issueService: Issue
     .option("--category <category...>", "カテゴリ名")
     .option("--milestone <milestone...>", "マイルストーン名")
     .option("--comment <comment>", "更新コメント")
+    .option("--start-date <date>", "開始日 (YYYY-MM-DD)")
+    .option("--due-date <date>", "期限日 (YYYY-MM-DD)")
+    .option("--parent <issueKey>", "親課題キー (none で解除)")
     .option("--json", "JSON形式で出力する")
     .action(async (issueKey: string, options: IssueUpdateCommandOptions) => {
       try {
+        const isValidDate = (value: string): boolean => {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+          const date = new Date(value);
+          return !isNaN(date.getTime()) && date.toISOString().startsWith(value);
+        };
+        if (options.startDate && !isValidDate(options.startDate)) {
+          console.error(`有効な日付を YYYY-MM-DD 形式で指定してください: ${options.startDate}`);
+          process.exitCode = 1;
+          return;
+        }
+        if (options.dueDate && !isValidDate(options.dueDate)) {
+          console.error(`有効な日付を YYYY-MM-DD 形式で指定してください: ${options.dueDate}`);
+          process.exitCode = 1;
+          return;
+        }
+
         const updateOptions: IssueUpdateOptions = {};
 
         if (options.status) {
@@ -49,6 +71,15 @@ export function registerIssueUpdateCommand(program: Command, issueService: Issue
         }
         if (options.comment) {
           updateOptions.comment = options.comment;
+        }
+        if (options.startDate) {
+          updateOptions.startDate = options.startDate;
+        }
+        if (options.dueDate) {
+          updateOptions.dueDate = options.dueDate;
+        }
+        if (options.parent) {
+          updateOptions.parentIssueKey = options.parent;
         }
 
         const issue = await issueService.update(issueKey, updateOptions);

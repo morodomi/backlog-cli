@@ -450,6 +450,128 @@ describe("IssueService", () => {
     });
   });
 
+  describe("create - 日付オプション", () => {
+    it("startDate を指定して課題を作成する → postIssue に startDate が渡される", async () => {
+      // Given: startDate を持つ作成オプション
+      const createdIssue = createIssueFixture({ issueKey: "PRJ-20" });
+      const mockClient = {
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
+        getIssueTypes: vi.fn().mockResolvedValue([{ id: 10, name: "タスク" }]),
+        getPriorities: vi.fn().mockResolvedValue([{ id: 3, name: "中" }]),
+        postIssue: vi.fn().mockResolvedValue(createdIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: startDate を指定して create を呼ぶ
+      await service.create({
+        projectKey: "PRJ",
+        summary: "日付付き課題",
+        issueTypeName: "タスク",
+        priorityName: "中",
+        startDate: "2026-03-01",
+      } as any);
+
+      // Then: postIssue に startDate が渡される
+      expect(mockClient.postIssue).toHaveBeenCalledWith(
+        expect.objectContaining({ startDate: "2026-03-01" }),
+      );
+    });
+
+    it("dueDate を指定して課題を作成する → postIssue に dueDate が渡される", async () => {
+      // Given: dueDate を持つ作成オプション
+      const createdIssue = createIssueFixture({ issueKey: "PRJ-21" });
+      const mockClient = {
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
+        getIssueTypes: vi.fn().mockResolvedValue([{ id: 10, name: "タスク" }]),
+        getPriorities: vi.fn().mockResolvedValue([{ id: 3, name: "中" }]),
+        postIssue: vi.fn().mockResolvedValue(createdIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: dueDate を指定して create を呼ぶ
+      await service.create({
+        projectKey: "PRJ",
+        summary: "期限付き課題",
+        issueTypeName: "タスク",
+        priorityName: "中",
+        dueDate: "2026-03-31",
+      } as any);
+
+      // Then: postIssue に dueDate が渡される
+      expect(mockClient.postIssue).toHaveBeenCalledWith(
+        expect.objectContaining({ dueDate: "2026-03-31" }),
+      );
+    });
+
+    it("startDate + dueDate 両方指定 → 両方渡される", async () => {
+      // Given: startDate と dueDate を両方持つ作成オプション
+      const createdIssue = createIssueFixture({ issueKey: "PRJ-22" });
+      const mockClient = {
+        getProjects: vi.fn().mockResolvedValue([{ id: 100, projectKey: "PRJ" }]),
+        getIssueTypes: vi.fn().mockResolvedValue([{ id: 10, name: "タスク" }]),
+        getPriorities: vi.fn().mockResolvedValue([{ id: 3, name: "中" }]),
+        postIssue: vi.fn().mockResolvedValue(createdIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: startDate + dueDate 両方を指定して create を呼ぶ
+      await service.create({
+        projectKey: "PRJ",
+        summary: "期間付き課題",
+        issueTypeName: "タスク",
+        priorityName: "中",
+        startDate: "2026-03-01",
+        dueDate: "2026-03-31",
+      } as any);
+
+      // Then: postIssue に startDate と dueDate の両方が渡される
+      expect(mockClient.postIssue).toHaveBeenCalledWith(
+        expect.objectContaining({
+          startDate: "2026-03-01",
+          dueDate: "2026-03-31",
+        }),
+      );
+    });
+  });
+
+  describe("update - 日付オプション", () => {
+    it("startDate を指定して課題を更新する → patchIssue に startDate が渡される", async () => {
+      // Given: startDate を持つ更新オプション
+      const updatedIssue = createIssueFixture({ issueKey: "PRJ-1" });
+      const mockClient = {
+        patchIssue: vi.fn().mockResolvedValue(updatedIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: startDate を指定して update を呼ぶ
+      await service.update("PRJ-1", { startDate: "2026-03-01" } as any);
+
+      // Then: patchIssue に startDate が渡される
+      expect(mockClient.patchIssue).toHaveBeenCalledWith(
+        "PRJ-1",
+        expect.objectContaining({ startDate: "2026-03-01" }),
+      );
+    });
+
+    it("dueDate を指定して課題を更新する → patchIssue に dueDate が渡される", async () => {
+      // Given: dueDate を持つ更新オプション
+      const updatedIssue = createIssueFixture({ issueKey: "PRJ-1" });
+      const mockClient = {
+        patchIssue: vi.fn().mockResolvedValue(updatedIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: dueDate を指定して update を呼ぶ
+      await service.update("PRJ-1", { dueDate: "2026-03-31" } as any);
+
+      // Then: patchIssue に dueDate が渡される
+      expect(mockClient.patchIssue).toHaveBeenCalledWith(
+        "PRJ-1",
+        expect.objectContaining({ dueDate: "2026-03-31" }),
+      );
+    });
+  });
+
   describe("comment", () => {
     it("課題にコメントを追加する", async () => {
       const createdComment = {
@@ -473,6 +595,94 @@ describe("IssueService", () => {
       expect(mockClient.postIssueComments).toHaveBeenCalledWith("PRJ-1", {
         content: "テストコメント",
       });
+    });
+  });
+
+  describe("update - 親課題操作", () => {
+    it("T1: parentIssueKey を指定して更新 → getIssue で ID 解決、patchIssue に parentIssueId が渡される", async () => {
+      // Given: 親課題 PRJ-5 が存在し、ID=5 を持つ
+      const parentIssue = createIssueFixture({ issueKey: "PRJ-5", id: 5 });
+      const updatedIssue = createIssueFixture({ issueKey: "PRJ-1", summary: "更新済み" });
+      const mockClient = {
+        getIssue: vi.fn().mockResolvedValue(parentIssue),
+        patchIssue: vi.fn().mockResolvedValue(updatedIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: parentIssueKey を指定して update を呼ぶ
+      const result = await service.update("PRJ-1", { parentIssueKey: "PRJ-5" } as any);
+
+      // Then: getIssue で PRJ-5 の ID を解決し、patchIssue に parentIssueId が渡される
+      expect(result).toEqual(updatedIssue);
+      expect(mockClient.getIssue).toHaveBeenCalledWith("PRJ-5");
+      expect(mockClient.patchIssue).toHaveBeenCalledWith(
+        "PRJ-1",
+        expect.objectContaining({ parentIssueId: 5 }),
+      );
+    });
+
+    it('T2: parentIssueKey に "none" を指定 → patchIssue に parentIssueId: null が渡される', async () => {
+      // Given: parentIssueKey に "none" を渡す更新オプション
+      const updatedIssue = createIssueFixture({ issueKey: "PRJ-1", summary: "親課題解除済み" });
+      const mockClient = {
+        patchIssue: vi.fn().mockResolvedValue(updatedIssue),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: parentIssueKey: "none" を指定して update を呼ぶ
+      const result = await service.update("PRJ-1", { parentIssueKey: "none" } as any);
+
+      // Then: patchIssue に parentIssueId: null が渡される（親課題解除）
+      expect(result).toEqual(updatedIssue);
+      expect(mockClient.patchIssue).toHaveBeenCalledWith(
+        "PRJ-1",
+        expect.objectContaining({ parentIssueId: null }),
+      );
+    });
+  });
+
+  describe("getChildIssues", () => {
+    it("T3: 課題キーから子課題一覧を取得する", async () => {
+      // Given: PRJ-1 が ID=1 を持ち、子課題が2件存在する
+      const parentIssue = createIssueFixture({ issueKey: "PRJ-1", id: 1 });
+      const childIssues = [
+        createIssueFixture({ issueKey: "PRJ-2", summary: "子課題1" }),
+        createIssueFixture({ issueKey: "PRJ-3", summary: "子課題2" }),
+      ];
+      const mockClient = {
+        getIssue: vi.fn().mockResolvedValue(parentIssue),
+        getIssues: vi.fn().mockResolvedValue(childIssues),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: getChildIssues で PRJ-1 の子課題を取得する
+      const result = await (service as any).getChildIssues("PRJ-1");
+
+      // Then: getIssue で PRJ-1 の ID を解決し、getIssues に parentIssueId が渡されて子課題が返る
+      expect(result).toEqual(childIssues);
+      expect(mockClient.getIssue).toHaveBeenCalledWith("PRJ-1");
+      expect(mockClient.getIssues).toHaveBeenCalledWith(
+        expect.objectContaining({ parentIssueId: [1] }),
+      );
+    });
+
+    it("T4: 子課題がない場合は空配列を返す", async () => {
+      // Given: PRJ-1 が存在するが子課題がない
+      const parentIssue = createIssueFixture({ issueKey: "PRJ-1", id: 1 });
+      const mockClient = {
+        getIssue: vi.fn().mockResolvedValue(parentIssue),
+        getIssues: vi.fn().mockResolvedValue([]),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: getChildIssues を呼ぶ
+      const result = await (service as any).getChildIssues("PRJ-1");
+
+      // Then: 空配列が返る
+      expect(result).toEqual([]);
+      expect(mockClient.getIssues).toHaveBeenCalledWith(
+        expect.objectContaining({ parentIssueId: [1] }),
+      );
     });
   });
 

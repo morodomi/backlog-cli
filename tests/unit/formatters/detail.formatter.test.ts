@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import type { Entity } from "backlog-js";
 import {
   formatIssueDetail,
   formatIssueCreated,
@@ -63,6 +64,46 @@ describe("formatIssueDetail", () => {
 
     const result = formatIssueDetail(issue);
     expect(result).toContain("(なし)");
+  });
+
+  // T9: parentIssueId がある場合、Parent 行が表示される
+  it("parentIssueId がある場合、Parent 行が表示される", () => {
+    // Given: parentIssueId を持つ課題
+    const issue = createIssueFixture({
+      issueKey: "PRJ-200",
+      parentIssueId: 123,
+    });
+
+    // When: 課題詳細をフォーマットする
+    const result = formatIssueDetail(issue);
+
+    // Then: Parent 行が出力に含まれる
+    expect(result).toContain("Parent:");
+    expect(result).toContain("123");
+  });
+
+  // T10: 子課題配列が渡された場合、子課題セクションが表示される
+  it("子課題配列が渡された場合、子課題セクションが表示される", () => {
+    // Given: 親課題と2件の子課題
+    const issue = createIssueFixture({ issueKey: "PRJ-300" });
+    const childIssue1 = createIssueFixture({
+      issueKey: "PRJ-301",
+      summary: "子課題1",
+    });
+    const childIssue2 = createIssueFixture({
+      issueKey: "PRJ-302",
+      summary: "子課題2",
+    });
+
+    // When: 子課題配列を第2引数に渡してフォーマットする
+    const result = (
+      formatIssueDetail as (issue: Entity.Issue.Issue, childIssues?: Entity.Issue.Issue[]) => string
+    )(issue, [childIssue1, childIssue2]);
+
+    // Then: 子課題セクションと各課題キーが出力に含まれる
+    expect(result).toContain("Children:");
+    expect(result).toContain("PRJ-301");
+    expect(result).toContain("PRJ-302");
   });
 });
 

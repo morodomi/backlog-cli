@@ -10,11 +10,12 @@ export function registerIssueViewCommand(program: Command, issueService: IssueSe
     .action(async (issueKey: string, options: { json?: boolean }) => {
       try {
         const issue = await issueService.view(issueKey);
+        const childIssues = await issueService.getChildIssues(issueKey);
 
         if (options.json) {
           console.log(JSON.stringify(issue, null, 2));
         } else {
-          console.log(formatIssueDetail(issue));
+          console.log(formatIssueDetail(issue, childIssues));
         }
       } catch (e) {
         console.error(e instanceof Error ? e.message : String(e));
