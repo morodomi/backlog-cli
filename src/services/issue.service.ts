@@ -10,6 +10,8 @@ export interface IssueCreateOptions {
   categoryNames?: string[];
   milestoneNames?: string[];
   parentIssueKey?: string;
+  startDate?: string;
+  dueDate?: string;
 }
 
 export interface IssueUpdateOptions {
@@ -20,6 +22,8 @@ export interface IssueUpdateOptions {
   categoryNames?: string[];
   milestoneNames?: string[];
   comment?: string;
+  startDate?: string;
+  dueDate?: string;
 }
 
 export interface IssueListOptions {
@@ -178,6 +182,12 @@ export class IssueService {
         options.milestoneNames,
       );
     }
+    if (options.startDate) {
+      params.startDate = options.startDate;
+    }
+    if (options.dueDate) {
+      params.dueDate = options.dueDate;
+    }
 
     return this.client.postIssue(params);
   }
@@ -218,6 +228,12 @@ export class IssueService {
     }
     if (options.comment) {
       params.comment = options.comment;
+    }
+    if (options.startDate) {
+      params.startDate = options.startDate;
+    }
+    if (options.dueDate) {
+      params.dueDate = options.dueDate;
     }
 
     return this.client.patchIssue(issueKey, params);
