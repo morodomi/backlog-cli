@@ -142,6 +142,12 @@ describe("issue list command", () => {
     );
   });
 
+  it("--limit 10abc で非数値文字を含む場合エラーになる", async () => {
+    await expect(
+      program.parseAsync(["node", "test", "list", "-p", "PRJ", "--limit", "10abc"]),
+    ).rejects.toThrow();
+  });
+
   it("API呼び出し失敗時にエラーメッセージを表示して exitCode=1", async () => {
     mockIssueService.list.mockRejectedValue(new Error("API connection failed"));
     const originalExitCode = process.exitCode;

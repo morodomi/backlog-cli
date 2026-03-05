@@ -160,6 +160,12 @@ describe("issue comment command", () => {
       ).rejects.toThrow();
     });
 
+    it("--limit 10abc で非数値文字を含む場合エラーになる", async () => {
+      await expect(
+        program.parseAsync(["node", "test", "comment", "list", "PRJ-1", "--limit", "10abc"]),
+      ).rejects.toThrow();
+    });
+
     it("API呼び出し失敗時にエラーメッセージを表示して exitCode=1", async () => {
       mockIssueService.listComments.mockRejectedValue(new Error("コメント取得に失敗しました"));
       const originalExitCode = process.exitCode;
