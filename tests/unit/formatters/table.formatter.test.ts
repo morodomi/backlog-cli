@@ -229,6 +229,17 @@ describe("formatCommentTable", () => {
     expect(result).toContain("2024-01-15 01:30:00");
   });
 
+  it("content が null のコメントでもクラッシュしない", () => {
+    // Given: content が null のコメント（Backlog API が返す実例あり）
+    const comments = [createCommentFixture({ content: null as unknown as string })];
+
+    // When: formatCommentTable を呼ぶ
+    const result = formatCommentTable(comments);
+
+    // Then: クラッシュせずテーブルが返る
+    expect(result).toContain("Author");
+  });
+
   it("空配列の場合メッセージを返す", () => {
     // Given: 空配列
     // When: formatCommentTable を呼ぶ
