@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import type { IssueService, IssueListOptions } from "../../services/issue.service.js";
 import { formatIssueTable } from "../../formatters/table.formatter.js";
 import { handleCommandError } from "../../errors/index.js";
+import { parseLimit } from "../helpers.js";
 
 interface IssueListCommandOptions {
   project: string;
@@ -32,7 +33,7 @@ export function registerIssueListCommand(program: Command, issueService: IssueSe
     .option("--keyword <text>", "キーワード検索")
     .option("--sort <key>", "ソートキー")
     .option("--order <order>", "ソート順 (asc|desc)")
-    .option("--limit <number>", "取得件数", parseInt)
+    .option("--limit <number>", "取得件数", parseLimit)
     .option("--json", "JSON形式で出力する")
     .action(async (options: IssueListCommandOptions) => {
       try {
