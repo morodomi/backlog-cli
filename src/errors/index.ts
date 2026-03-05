@@ -4,3 +4,8 @@ export class AuthNotConfiguredError extends Error {
     this.name = "AuthNotConfiguredError";
   }
 }
+
+export function handleCommandError(e: unknown): void {
+  console.error(e instanceof Error ? e.message : String(e));
+  process.exitCode = 1;
+}

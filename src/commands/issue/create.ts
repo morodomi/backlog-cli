@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import type { IssueService, IssueCreateOptions } from "../../services/issue.service.js";
 import { formatIssueCreated } from "../../formatters/detail.formatter.js";
+import { handleCommandError } from "../../errors/index.js";
 
 interface IssueCreateCommandOptions {
   project: string;
@@ -88,8 +89,7 @@ export function registerIssueCreateCommand(program: Command, issueService: Issue
           console.log(formatIssueCreated(issue));
         }
       } catch (e) {
-        console.error(e instanceof Error ? e.message : String(e));
-        process.exitCode = 1;
+        handleCommandError(e);
       }
     });
 }

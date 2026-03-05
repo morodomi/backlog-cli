@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import type { IssueService } from "../../services/issue.service.js";
 import { formatIssueDetail } from "../../formatters/detail.formatter.js";
+import { handleCommandError } from "../../errors/index.js";
 
 export function registerIssueViewCommand(program: Command, issueService: IssueService): void {
   program
@@ -18,8 +19,7 @@ export function registerIssueViewCommand(program: Command, issueService: IssueSe
           console.log(formatIssueDetail(issue, childIssues));
         }
       } catch (e) {
-        console.error(e instanceof Error ? e.message : String(e));
-        process.exitCode = 1;
+        handleCommandError(e);
       }
     });
 }

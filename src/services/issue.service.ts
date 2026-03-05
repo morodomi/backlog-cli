@@ -257,6 +257,16 @@ export class IssueService {
     return this.client.postIssueComments(issueKey, { content });
   }
 
+  async listComments(
+    issueKey: string,
+    options?: { count?: number; order?: "asc" | "desc" },
+  ): Promise<Entity.Issue.Comment[]> {
+    return this.client.getIssueComments(issueKey, {
+      count: options?.count ?? 10,
+      order: options?.order ?? "desc",
+    });
+  }
+
   private async resolveProjectId(projectKey: string): Promise<number> {
     const projects = await this.client.getProjects({});
     const project = projects.find((p: Entity.Project.Project) => p.projectKey === projectKey);

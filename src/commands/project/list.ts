@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import type { ProjectService } from "../../services/project.service.js";
 import { formatProjectTable } from "../../formatters/table.formatter.js";
+import { handleCommandError } from "../../errors/index.js";
 
 export function registerProjectListCommand(program: Command, projectService: ProjectService): void {
   program
@@ -22,8 +23,7 @@ export function registerProjectListCommand(program: Command, projectService: Pro
           console.log(formatProjectTable(projects));
         }
       } catch (e) {
-        console.error(e instanceof Error ? e.message : String(e));
-        process.exitCode = 1;
+        handleCommandError(e);
       }
     });
 }

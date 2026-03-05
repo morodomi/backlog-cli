@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import type { IssueService, IssueUpdateOptions } from "../../services/issue.service.js";
 import { formatIssueUpdated } from "../../formatters/detail.formatter.js";
+import { handleCommandError } from "../../errors/index.js";
 
 interface IssueUpdateCommandOptions {
   status?: string;
@@ -90,8 +91,7 @@ export function registerIssueUpdateCommand(program: Command, issueService: Issue
           console.log(formatIssueUpdated(issue));
         }
       } catch (e) {
-        console.error(e instanceof Error ? e.message : String(e));
-        process.exitCode = 1;
+        handleCommandError(e);
       }
     });
 }

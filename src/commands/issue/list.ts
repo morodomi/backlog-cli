@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import type { IssueService, IssueListOptions } from "../../services/issue.service.js";
 import { formatIssueTable } from "../../formatters/table.formatter.js";
+import { handleCommandError } from "../../errors/index.js";
 
 interface IssueListCommandOptions {
   project: string;
@@ -93,8 +94,7 @@ export function registerIssueListCommand(program: Command, issueService: IssueSe
           console.log(formatIssueTable(issues));
         }
       } catch (e) {
-        console.error(e instanceof Error ? e.message : String(e));
-        process.exitCode = 1;
+        handleCommandError(e);
       }
     });
 }

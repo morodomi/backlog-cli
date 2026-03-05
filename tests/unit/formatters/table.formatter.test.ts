@@ -6,8 +6,9 @@ import {
   formatCategoryTable,
   formatVersionTable,
   formatMemberTable,
+  formatCommentTable,
 } from "../../../src/formatters/table.formatter.js";
-import { createProjectFixture } from "../../helpers/fixtures.js";
+import { createProjectFixture, createCommentFixture, createUser } from "../../helpers/fixtures.js";
 
 describe("formatProjectTable", () => {
   it("プロジェクト一覧をテーブル形式の文字列で返す", () => {
@@ -169,5 +170,71 @@ describe("formatMemberTable", () => {
   it("空の場合メッセージを返す", () => {
     const result = formatMemberTable([]);
     expect(result).toContain("メンバーが見つかりません");
+  });
+});
+
+describe("formatCommentTable", () => {
+  it("コメント一覧をテーブル形式で返す", () => {
+    // Given: Comment 配列
+    const comments = [
+      createCommentFixture({
+        id: 1,
+        content: "最初のコメント",
+        createdUser: createUser({ name: "山田太郎" }),
+        created: "2024-01-15T10:30:00Z",
+        updated: "2024-01-15T10:30:00Z",
+      }),
+      createCommentFixture({
+        id: 2,
+        content: "2つ目のコメント",
+        createdUser: createUser({ id: 2, name: "鈴木花子" }),
+        created: "2024-01-16T14:00:00Z",
+        updated: "2024-01-16T14:00:00Z",
+      }),
+    ];
+
+    // When: formatCommentTable を呼ぶ
+    const result = formatCommentTable(comments);
+
+    // Then: ヘッダとデータ行が含まれる
+    expect(result).toContain("Author");
+    expect(result).toContain("Date");
+    expect(result).toContain("Content");
+    expect(result).toContain("山田太郎");
+    expect(result).toContain("最初のコメント");
+    expect(result).toContain("鈴木花子");
+    expect(result).toContain("2つ目のコメント");
+  });
+
+  it("複数行コメントは先頭行のみ表示する", () => {
+    // Given: 複数行コンテンツを持つコメント
+    const comments = [createCommentFixture({ content: "1行目\n2行目\n3行目" })];
+
+    // When: formatCommentTable を呼ぶ
+    const result = formatCommentTable(comments);
+
+    // Then: 先頭行のみ含まれ、2行目以降は含まれない
+    expect(result).toContain("1行目");
+    expect(result).not.toContain("2行目");
+  });
+
+  it("+0900 タイムゾーンの日付をUTC正規化して表示する", () => {
+    // Given: +09:00 タイムゾーンの日付を持つコメント
+    const comments = [createCommentFixture({ created: "2024-01-15T10:30:00+09:00" })];
+
+    // When: formatCommentTable を呼ぶ
+    const result = formatCommentTable(comments);
+
+    // Then: UTC変換された日付が表示される
+    expect(result).toContain("2024-01-15 01:30:00");
+  });
+
+  it("空配列の場合メッセージを返す", () => {
+    // Given: 空配列
+    // When: formatCommentTable を呼ぶ
+    const result = formatCommentTable([]);
+
+    // Then: 空メッセージ
+    expect(result).toBe("コメントが見つかりません");
   });
 });
