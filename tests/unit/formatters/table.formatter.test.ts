@@ -6,6 +6,7 @@ import {
   formatCategoryTable,
   formatVersionTable,
   formatMemberTable,
+  formatCommentTable,
 } from "../../../src/formatters/table.formatter.js";
 import { createProjectFixture } from "../../helpers/fixtures.js";
 
@@ -169,5 +170,54 @@ describe("formatMemberTable", () => {
   it("空の場合メッセージを返す", () => {
     const result = formatMemberTable([]);
     expect(result).toContain("メンバーが見つかりません");
+  });
+});
+
+describe("formatCommentTable", () => {
+  it("コメント一覧をテーブル形式で返す", () => {
+    // Given: Comment 配列
+    const comments = [
+      {
+        id: 1,
+        content: "最初のコメント",
+        changeLog: [],
+        createdUser: { id: 1, name: "山田太郎" },
+        created: "2024-01-15T10:30:00Z",
+        updated: "2024-01-15T10:30:00Z",
+        stars: [],
+        notifications: [],
+      },
+      {
+        id: 2,
+        content: "2つ目のコメント",
+        changeLog: [],
+        createdUser: { id: 2, name: "鈴木花子" },
+        created: "2024-01-16T14:00:00Z",
+        updated: "2024-01-16T14:00:00Z",
+        stars: [],
+        notifications: [],
+      },
+    ];
+
+    // When: formatCommentTable を呼ぶ
+    const result = formatCommentTable(comments as any);
+
+    // Then: ヘッダとデータ行が含まれる
+    expect(result).toContain("Author");
+    expect(result).toContain("Date");
+    expect(result).toContain("Content");
+    expect(result).toContain("山田太郎");
+    expect(result).toContain("最初のコメント");
+    expect(result).toContain("鈴木花子");
+    expect(result).toContain("2つ目のコメント");
+  });
+
+  it("空配列の場合メッセージを返す", () => {
+    // Given: 空配列
+    // When: formatCommentTable を呼ぶ
+    const result = formatCommentTable([]);
+
+    // Then: 空メッセージ
+    expect(result).toBe("コメントが見つかりません");
   });
 });

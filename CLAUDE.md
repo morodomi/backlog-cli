@@ -130,7 +130,8 @@ backlog issue update ISSUE_KEY [--status ステータス名] [--assignee 名前]
                                [--start-date YYYY-MM-DD] [--due-date YYYY-MM-DD]
                                [--parent 課題キー|none]
                                [--comment "更新コメント"] [--json]
-backlog issue comment ISSUE_KEY --content "コメント本文" [--json]
+backlog issue comment add ISSUE_KEY --content "コメント本文" [--json]
+backlog issue comment list ISSUE_KEY [--limit N] [--json]
 ```
 
 ## Quality Standards

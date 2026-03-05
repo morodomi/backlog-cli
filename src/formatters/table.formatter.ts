@@ -115,6 +115,23 @@ export function formatMemberTable(members: Entity.User.User[]): string {
   return [header, separator, ...rows].join("\n");
 }
 
+export function formatCommentTable(comments: Entity.Issue.Comment[]): string {
+  if (comments.length === 0) {
+    return "コメントが見つかりません";
+  }
+
+  const header = padEnd("Author", 20) + padEnd("Date", 22) + "Content";
+  const separator = "-".repeat(80);
+  const rows = comments.map(
+    (c) =>
+      padEnd(c.createdUser.name, 20) +
+      padEnd(c.created.replace("T", " ").replace("Z", ""), 22) +
+      c.content,
+  );
+
+  return [header, separator, ...rows].join("\n");
+}
+
 function padEnd(str: string, len: number): string {
   if (str.length >= len) return str + " ";
   return str + " ".repeat(len - str.length);

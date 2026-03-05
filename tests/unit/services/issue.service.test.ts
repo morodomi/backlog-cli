@@ -686,6 +686,55 @@ describe("IssueService", () => {
     });
   });
 
+  describe("listComments", () => {
+    it("コメント一覧を取得する（デフォルトオプション）", async () => {
+      // Given: mock が Comment 配列を返す
+      const comments = [
+        {
+          id: 1,
+          content: "コメント1",
+          changeLog: [],
+          createdUser: { id: 1, name: "ユーザー1" },
+          created: "2024-01-01T00:00:00Z",
+          updated: "2024-01-01T00:00:00Z",
+          stars: [],
+          notifications: [],
+        },
+      ];
+      const mockClient = {
+        getIssueComments: vi.fn().mockResolvedValue(comments),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: listComments をデフォルトで呼ぶ
+      const result = await service.listComments("PRJ-1");
+
+      // Then: getIssueComments が count:10, order:"desc" で呼ばれる
+      expect(result).toEqual(comments);
+      expect(mockClient.getIssueComments).toHaveBeenCalledWith("PRJ-1", {
+        count: 10,
+        order: "desc",
+      });
+    });
+
+    it("count を指定してコメント一覧を取得する", async () => {
+      // Given: mock が空配列を返す
+      const mockClient = {
+        getIssueComments: vi.fn().mockResolvedValue([]),
+      };
+      const service = new IssueService(mockClient as any);
+
+      // When: count:5 を指定して listComments を呼ぶ
+      await service.listComments("PRJ-1", { count: 5 });
+
+      // Then: getIssueComments が count:5 で呼ばれる
+      expect(mockClient.getIssueComments).toHaveBeenCalledWith("PRJ-1", {
+        count: 5,
+        order: "desc",
+      });
+    });
+  });
+
   describe("list with extended options", () => {
     it("issueTypeIdでフィルタできる", async () => {
       const mockClient = {
