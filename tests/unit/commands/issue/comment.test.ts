@@ -1,43 +1,29 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Command } from "commander";
 import { registerIssueCommentCommand } from "../../../../src/commands/issue/comment.js";
+import { createCommentFixture, createUser } from "../../../helpers/fixtures.js";
 
 describe("issue comment command", () => {
   let program: Command;
   let mockIssueService: any;
 
-  const mockComment = {
-    id: 1,
-    content: "テストコメント",
-    changeLog: [],
-    createdUser: { id: 1, name: "テストユーザー" },
-    created: "2024-01-01T00:00:00Z",
-    updated: "2024-01-01T00:00:00Z",
-    stars: [],
-    notifications: [],
-  };
+  const mockComment = createCommentFixture();
 
   const mockComments = [
-    {
+    createCommentFixture({
       id: 1,
       content: "コメント1",
-      changeLog: [],
-      createdUser: { id: 1, name: "ユーザー1" },
+      createdUser: createUser({ name: "ユーザー1" }),
       created: "2024-01-01T10:00:00Z",
       updated: "2024-01-01T10:00:00Z",
-      stars: [],
-      notifications: [],
-    },
-    {
+    }),
+    createCommentFixture({
       id: 2,
       content: "コメント2",
-      changeLog: [],
-      createdUser: { id: 2, name: "ユーザー2" },
+      createdUser: createUser({ id: 2, name: "ユーザー2" }),
       created: "2024-01-02T10:00:00Z",
       updated: "2024-01-02T10:00:00Z",
-      stars: [],
-      notifications: [],
-    },
+    }),
   ];
 
   beforeEach(() => {
@@ -148,6 +134,30 @@ describe("issue comment command", () => {
 
       const output = (console.log as any).mock.calls[0][0];
       expect(output).toContain("コメントが見つかりません");
+    });
+
+    it("--limit abc でエラーになる", async () => {
+      await expect(
+        program.parseAsync(["node", "test", "comment", "list", "PRJ-1", "--limit", "abc"]),
+      ).rejects.toThrow();
+    });
+
+    it("--limit 0 でエラーになる", async () => {
+      await expect(
+        program.parseAsync(["node", "test", "comment", "list", "PRJ-1", "--limit", "0"]),
+      ).rejects.toThrow();
+    });
+
+    it("--limit -1 でエラーになる", async () => {
+      await expect(
+        program.parseAsync(["node", "test", "comment", "list", "PRJ-1", "--limit", "-1"]),
+      ).rejects.toThrow();
+    });
+
+    it("--limit 101 でエラーになる", async () => {
+      await expect(
+        program.parseAsync(["node", "test", "comment", "list", "PRJ-1", "--limit", "101"]),
+      ).rejects.toThrow();
     });
 
     it("API呼び出し失敗時にエラーメッセージを表示して exitCode=1", async () => {

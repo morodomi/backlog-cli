@@ -25,7 +25,7 @@ export function createProjectFixture(
   };
 }
 
-function createUser(overrides: Partial<Entity.User.User> = {}): Entity.User.User {
+export function createUser(overrides: Partial<Entity.User.User> = {}): Entity.User.User {
   return {
     id: 1,
     userId: "user1",
@@ -34,6 +34,22 @@ function createUser(overrides: Partial<Entity.User.User> = {}): Entity.User.User
     lang: "ja",
     mailAddress: "test@example.com",
     lastLoginTime: "",
+    ...overrides,
+  };
+}
+
+export function createCommentFixture(
+  overrides: Partial<Entity.Issue.Comment> = {},
+): Entity.Issue.Comment {
+  return {
+    id: 1,
+    content: "テストコメント",
+    changeLog: [],
+    createdUser: createUser(),
+    created: "2024-01-01T00:00:00Z",
+    updated: "2024-01-01T00:00:00Z",
+    stars: [],
+    notifications: [],
     ...overrides,
   };
 }

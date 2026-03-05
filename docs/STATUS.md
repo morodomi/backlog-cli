@@ -29,9 +29,9 @@
 
 ## Open Issues
 
-| # | タイトル | ラベル |
-|---|---------|--------|
-| 7 | fix: comment list --limit バリデーション追加 | bug |
-| 8 | fix: formatCommentTable 複数行コメント・日付フォーマット対応 | bug |
-| 9 | refactor: コマンドハンドラのエラーハンドリング共通化 | enhancement |
-| 10 | refactor: createCommentFixture をテストヘルパーに追加 | enhancement |
+| #   | タイトル                                                     | ラベル      |
+| --- | ------------------------------------------------------------ | ----------- |
+| 7   | fix: comment list --limit バリデーション追加                 | bug         |
+| 8   | fix: formatCommentTable 複数行コメント・日付フォーマット対応 | bug         |
+| 9   | refactor: コマンドハンドラのエラーハンドリング共通化         | enhancement |
+| 10  | refactor: createCommentFixture をテストヘルパーに追加        | enhancement |

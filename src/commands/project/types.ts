@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import type { ProjectService } from "../../services/project.service.js";
 import { formatIssueTypeTable } from "../../formatters/table.formatter.js";
+import { handleCommandError } from "../../errors/index.js";
 
 export function registerProjectTypesCommand(
   program: Command,
@@ -20,8 +21,7 @@ export function registerProjectTypesCommand(
           console.log(formatIssueTypeTable(types));
         }
       } catch (e) {
-        console.error(e instanceof Error ? e.message : String(e));
-        process.exitCode = 1;
+        handleCommandError(e);
       }
     });
 }

@@ -6,7 +6,7 @@ import {
   formatIssueUpdated,
   formatCommentCreated,
 } from "../../../src/formatters/detail.formatter.js";
-import { createIssueFixture } from "../../helpers/fixtures.js";
+import { createIssueFixture, createCommentFixture } from "../../helpers/fixtures.js";
 
 describe("formatIssueDetail", () => {
   it("課題詳細をフォーマットして返す", () => {
@@ -139,18 +139,9 @@ describe("formatIssueUpdated", () => {
 
 describe("formatCommentCreated", () => {
   it("コメント追加結果をフォーマットする", () => {
-    const comment = {
-      id: 1,
-      content: "テストコメント内容",
-      changeLog: [],
-      createdUser: { id: 1, name: "テストユーザー" },
-      created: "2024-01-01T00:00:00Z",
-      updated: "2024-01-01T00:00:00Z",
-      stars: [],
-      notifications: [],
-    };
+    const comment = createCommentFixture({ content: "テストコメント内容" });
 
-    const result = formatCommentCreated("PRJ-1", comment as any);
+    const result = formatCommentCreated("PRJ-1", comment);
 
     expect(result).toContain("コメントを追加しました");
     expect(result).toContain("PRJ-1");

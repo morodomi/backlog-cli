@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { IssueService } from "../../../src/services/issue.service.js";
-import { createIssueFixture } from "../../helpers/fixtures.js";
+import { createIssueFixture, createCommentFixture } from "../../helpers/fixtures.js";
 
 describe("IssueService", () => {
   describe("list", () => {
@@ -574,16 +574,7 @@ describe("IssueService", () => {
 
   describe("comment", () => {
     it("課題にコメントを追加する", async () => {
-      const createdComment = {
-        id: 1,
-        content: "テストコメント",
-        changeLog: [],
-        createdUser: { id: 1, name: "テストユーザー" },
-        created: "2024-01-01T00:00:00Z",
-        updated: "2024-01-01T00:00:00Z",
-        stars: [],
-        notifications: [],
-      };
+      const createdComment = createCommentFixture();
       const mockClient = {
         postIssueComments: vi.fn().mockResolvedValue(createdComment),
       };
@@ -689,18 +680,7 @@ describe("IssueService", () => {
   describe("listComments", () => {
     it("コメント一覧を取得する（デフォルトオプション）", async () => {
       // Given: mock が Comment 配列を返す
-      const comments = [
-        {
-          id: 1,
-          content: "コメント1",
-          changeLog: [],
-          createdUser: { id: 1, name: "ユーザー1" },
-          created: "2024-01-01T00:00:00Z",
-          updated: "2024-01-01T00:00:00Z",
-          stars: [],
-          notifications: [],
-        },
-      ];
+      const comments = [createCommentFixture({ content: "コメント1" })];
       const mockClient = {
         getIssueComments: vi.fn().mockResolvedValue(comments),
       };

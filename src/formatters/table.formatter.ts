@@ -122,11 +122,13 @@ export function formatCommentTable(comments: Entity.Issue.Comment[]): string {
 
   const header = padEnd("Author", 20) + padEnd("Date", 22) + "Content";
   const separator = "-".repeat(80);
+  const formatDate = (iso: string): string =>
+    new Date(iso).toISOString().replace("T", " ").slice(0, 19);
+  const firstLine = (s: string): string => s.split("\n")[0];
+
   const rows = comments.map(
     (c) =>
-      padEnd(c.createdUser.name, 20) +
-      padEnd(c.created.replace("T", " ").replace("Z", ""), 22) +
-      c.content,
+      padEnd(c.createdUser.name, 20) + padEnd(formatDate(c.created), 22) + firstLine(c.content),
   );
 
   return [header, separator, ...rows].join("\n");
